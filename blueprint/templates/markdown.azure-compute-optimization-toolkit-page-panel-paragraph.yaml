@@ -1,0 +1,14 @@
+kind: Markdown
+apiVersion: widgets.templates.krateo.io/v1beta1
+metadata:
+  name:  azure-compute-optimization-toolkit-page-panel-markdown
+spec:
+  widgetData:
+    markdown: |
+      ### List of all the Virtual Machines in your Azure tenant with each column being:
+      - **Resource ID**: the full path of the resource, including the subscription id and the resource group
+      - **Metric Name**: the name of the listed metric
+      - **Unit**: the unit of measure of the listed metric
+      - **Opt. From/To/Delta**: this is the time range for which a set of resources is reccomended to be removed. Specifically, starting from the time of day in `Opt. From` to the time of day in `Opt. To`, remove `Opt. Delta` resources
+      - **Warning**: if `Opt. Delta` is higher than 50% (i.e., -50), then the warning icon is displayed
+      - **Cost**: the billed cost of the Virtual Machine 

@@ -1,0 +1,67 @@
+# @schema
+# type: string
+# required: true
+# default: azuretoolkit
+# description: table for the usage metrics of all the virtual machines
+# @schema
+tableName: azuretoolkit 
+# @schema
+# type: string
+# required: true
+# @schema
+subscriptionId: c6b5e096-42d4-4434-9643-a7a342fefb84
+# @schema
+# type: object
+# required: true
+# @schema
+global:
+  # @schema
+  # type: string
+  # required: true
+  # default: krateo-system
+  # @schema
+  krateoNamespace: krateo-system
+
+# @schema
+# type: object
+# required: true
+# @schema
+configuration:
+  # @schema
+  # type: string
+  # required: true
+  # @schema
+  tenantId: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+  # @schema
+  # type: string
+  # required: true
+  # @schema
+  clientId: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+  # @schema
+  # type: string
+  # required: true
+  # @schema
+  clientSecret: xxxxxxxxxx
+  # @schema
+  # type: object
+  # required: true
+  # @schema
+  exporterConfig:
+    # @schema
+    # type: object
+    # required: true
+    # @schema
+    additionalVariables: 
+      # @schema
+      # type: string
+      # required: true
+      # @schema
+      account_name: # storage account name
+  scraperConfig:
+    # @schema
+    # type: string
+    # required: true
+    # default: finops
+    # description: table name for the FOCUS cost metrics
+    # @schema
+    tableName: finops

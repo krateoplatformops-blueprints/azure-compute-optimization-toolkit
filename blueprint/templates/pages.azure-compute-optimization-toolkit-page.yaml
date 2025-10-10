@@ -1,0 +1,19 @@
+kind: Page
+apiVersion: widgets.templates.krateo.io/v1beta1
+metadata:
+  name: azure-compute-optimization-toolkit-page
+  namespace: {{ .Release.Namespace }}
+spec:
+  widgetData:
+    allowedResources:
+    - panels
+    items:
+      - resourceRefId: azure-compute-optimization-toolkit-page-panel
+  resourcesRefs:
+    items:
+    - id: azure-compute-optimization-toolkit-page-panel
+      apiVersion: widgets.templates.krateo.io/v1beta1
+      name: azure-compute-optimization-toolkit-page-panel
+      namespace: {{ .Release.Namespace }}
+      resource: panels
+      verb: GET

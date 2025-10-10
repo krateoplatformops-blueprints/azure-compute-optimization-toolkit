@@ -1,0 +1,26 @@
+kind: Button
+apiVersion: widgets.templates.krateo.io/v1beta1
+metadata:
+  name: azure-compute-optimization-toolkit-filter
+spec:
+  widgetData:
+    label: Filter
+    size: middle
+    icon: fa-solid fa-filter
+    type: default
+    clickActionId: open-drawer-action
+    actions:
+      openDrawer:
+        - id: open-drawer-action
+          resourceRefId: filter
+          type: openDrawer
+          title: Filter Providers
+          size: default
+  resourcesRefs:
+    items:
+    - id: filter
+      apiVersion: widgets.templates.krateo.io/v1beta1
+      name: azure-compute-optimization-toolkit-filter
+      namespace: {{ .Release.Namespace }}
+      resource: filters
+      verb: GET

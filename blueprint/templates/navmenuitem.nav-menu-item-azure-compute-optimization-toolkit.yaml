@@ -1,0 +1,22 @@
+kind: NavMenuItem
+apiVersion: widgets.templates.krateo.io/v1beta1
+metadata:
+  name: nav-menu-item-azure-compute-optimization-toolkit
+  namespace: {{ .Release.Namespace }}
+spec:
+  widgetData:
+    allowedResources:
+    - pages
+    resourceRefId: azure-compute-optimization-toolkit
+    label: ACOT
+    icon: "fa-solid fa-server"
+    path: /azure-compute-optimization-toolkit
+    order: 91 # Always the last object of the menu
+  resourcesRefs:
+    items:
+    - id: azure-compute-optimization-toolkit
+      apiVersion: widgets.templates.krateo.io/v1beta1
+      name: azure-compute-optimization-toolkit-page
+      namespace: {{ .Release.Namespace }}
+      resource: pages
+      verb: GET

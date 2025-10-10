@@ -1,0 +1,129 @@
+apiVersion: templates.krateo.io/v1
+kind: RESTAction
+metadata:
+  name: azure-compute-optimization-toolkit-page-panel-table
+  namespace: {{ .Release.Namespace }}
+spec:
+  api:
+  - name: listRG
+    path: "/subscriptions/{{ .Values.subscriptionId }}/resourcegroups?api-version=2021-04-01"
+    verb: GET
+    endpointRef:
+      name: azure-management-api
+      namespace: {{ .Release.Namespace }}
+    headers:
+    - 'Accept: application/json'
+    errorKey: listRGError
+  - name: listVM
+    dependsOn:
+      name: listRG
+      iterator: .listRG.value
+    path: ${ "/subscriptions/{{ .Values.subscriptionId }}/resourceGroups/" + ( .name ) + "/providers/Microsoft.Compute/virtualMachines?api-version=2025-04-01" }
+    verb: GET
+    endpointRef:
+      name: azure-management-api
+      namespace: {{ .Release.Namespace }}
+    headers:
+    - 'Accept: application/json'
+    errorKey: listVMError
+    filter: .listVM.value? // null
+  - name: createExporterScrapers
+    dependsOn:
+      name: listVM
+      iterator: .listVM
+    verb: POST
+    continueOnError: true
+    errorKey: createExporterScrapersError
+    path: "/apis/finops.krateo.io/v1/namespaces/{{ .Release.Namespace }}/exporterscraperconfigs/"
+    headers:
+      - "Content-Type: application/json"
+    payload: >
+      ${
+        {
+          "kind": "ExporterScraperConfig",
+          "apiVersion": "finops.krateo.io/v1",
+          "metadata": {
+            "name": "acot-" + .name,
+            "namespace": "{{ .Release.Namespace }}",
+            "labels": {
+              "krateo.io/portal": "azure-compute-optimization-toolkit"
+            }
+          },
+          "spec": {
+            "exporterConfig": {
+              "additionalVariables": {
+                  "ResourceId": .id
+              },
+              "api": {
+                  "endpointRef": {
+                      "name": "azure-management-api",
+                      "namespace": "{{ .Release.Namespace }}"
+                  },
+                  "path": .id + "/providers/microsoft.insights/metrics?api-version=2023-10-01&metricnames=Percentage%20CPU&timespan=" + (now - 2592000 | strftime("%Y-%m-%d")) + "/" + (now | strftime("%Y-%m-%d")) + "&interval=PT15M",
+                  "verb": "GET"
+              },
+              "metricType": "resource",
+              "pollingInterval": "1h0m0s",
+              "provider": {
+                  "name": "",
+                  "namespace": ""
+              }
+            },
+            "scraperConfig": {
+              "api": {},
+              "metricType": "cost",
+              "pollingInterval": "1h0m0s",
+              "scraperDatabaseConfigRef": {
+                  "name": "finops-database-handler",
+                  "namespace": "{{ .Values.global.KrateoNamespace }}"
+              },
+              "tableName": "{{ .Values.tableName }}"
+            }
+          }
+        }
+      }
+  - name: getCredentials
+    verb: GET
+    path: api/v1/namespaces/{{ .Values.global.KrateoNamespace }}/secrets/finops-database-handler-endpoint
+    errorKey: getCredentialsError
+    headers:
+    - 'Accept: application/json'
+    filter: >
+      { username: ( .getCredentials.data.username | @base64d ), password: ( .getCredentials.data.password | @base64d ) }
+  - name: optService
+    dependsOn:
+      name: listVM
+      iterator: .listVM
+    errorKey: optServiceError
+    continueOnError: true
+    endpointRef:
+      name: finops-moving-window-microservice-endpoint
+      namespace: azure-pricing-system
+    path: ${ "/optimize?table_name={{ .Values.tableName }}&resource_name=" + .id + "&dbhandler_url=http://finops-database-handler.{{ .Values.global.KrateoNamespace }}.svc:8088/compute" }
+    headers:
+    - 'Accept: application/json'
+    - "${ \"Authorization: Basic \" + (( .getCredentials.username + \":\" + .getCredentials.password ) | @base64 ) }"
+  - name: acot
+    verb: POST
+    path: /compute/acot
+    dependsOn:
+      name: optService
+      iterator: .optService
+    errorKey: acotError
+    headers:
+    - 'Accept: application/json'
+    - 'Content-Type: application/json'
+    endpointRef:
+      name: finops-database-handler-endpoint
+      namespace: {{ .Values.global.KrateoNamespace }}
+    payload: |
+      ${ {
+            resourceid: .resourceid, 
+            tablename: "{{ .Values.configuration.scraperConfig.tableName }}", 
+            metricname: .metricname, 
+            unit: .unit, 
+            optimizationfrom: (.optimization.from | tostring),
+            optimizationto: (.optimization.to| tostring),
+            optimizationdelta: (.optimization.resourceDelta| tostring)
+          } 
+        }

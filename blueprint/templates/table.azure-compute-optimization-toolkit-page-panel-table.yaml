@@ -1,0 +1,79 @@
+apiVersion: widgets.templates.krateo.io/v1beta1
+kind: Table
+metadata:
+  name:  azure-compute-optimization-toolkit-page-panel-table
+spec:
+  apiRef:
+    name:  azure-compute-optimization-toolkit-page-panel-table
+    namespace: {{ .Release.Namespace }}
+  widgetData:
+    prefix: acot-filter-table
+    allowedResources: []
+    columns:
+    - title: Resource ID
+      valueKey: resourceid
+    - title: Metric Name
+      valueKey: metricname
+    - title: Unit
+      valueKey: unit
+    - title: Opt. From (hh:mm)
+      valueKey: optimizationfrom
+    - title: Opt. To (hh:mm)
+      valueKey: optimizationto
+    - title: Opt. Delta (%)
+      valueKey: optimizationdelta
+    - title: Warning
+      valueKey: warning
+      color: gray
+    - title: Cost (€)
+      valueKey: billedCost
+    data: []
+    pageSize: 10
+  widgetDataTemplate:
+  - expression: >
+      ${
+        def round2: (. * 100 | round / 100);
+
+        .acot as $rows |
+          .acot as $rows |
+          ($rows | map(.billedCost) | add | round2) as $totalCost |
+            (
+              $rows
+              | map(select(.optimizationdelta != "") | .optimizationdelta | tonumber?)
+              | if length > 0 then (add / length | round2) else 0 end
+            ) as $avgDelta |
+
+
+        # Append a summary "total" row
+        ($rows + [{
+          billedCost: $totalCost,
+          metricname: "Total",
+          optimizationdelta: ($avgDelta | tostring),
+          optimizationfrom: "",
+          optimizationto: "",
+          resourceid: "",
+          tablename: "finops",
+          unit: ""
+        }]) as $extended |
+
+        ($extended | map([
+          {kind: "jsonSchemaType", type: "string", valueKey: "resourceid", stringValue: .resourceid},
+          {kind: "jsonSchemaType", type: "string", valueKey: "metricname", stringValue: .metricname},
+          {kind: "jsonSchemaType", type: "decimal", valueKey: "billedCost", decimalValue: ((.billedCost | round2 ) | tostring)},
+          {kind: "jsonSchemaType", type: "string", valueKey: "optimizationdelta", stringValue: .optimizationdelta},
+          {kind: "jsonSchemaType", type: "string", valueKey: "optimizationfrom", stringValue: .optimizationfrom},
+          {kind: "jsonSchemaType", type: "string", valueKey: "optimizationto", stringValue: .optimizationto},
+          {kind: "jsonSchemaType", type: "string", valueKey: "unit", stringValue: .unit},
+          {kind: "jsonSchemaType", type: "string", valueKey: "tablename", stringValue: .tablename},
+          (
+            if (.metricname == "Total") then
+              {kind: "jsonSchemaType", type: "string", valueKey: "warning", stringValue: ""}
+            elif ((.optimizationdelta | tonumber?) < -50) then
+              {kind: "icon", valueKey: "warning", stringValue: "fa-solid fa-warning"}
+            else
+              {kind: "icon", valueKey: "warning", stringValue: "fa-solid fa-check"}
+            end
+          )
+        ]))
+      }
+    forPath: data

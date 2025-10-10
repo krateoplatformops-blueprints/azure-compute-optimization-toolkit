@@ -1,0 +1,109 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "additionalProperties": false,
+  "properties": {
+    "configuration": {
+      "additionalProperties": false,
+      "properties": {
+        "clientId": {
+          "default": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+          "title": "clientId",
+          "type": "string"
+        },
+        "clientSecret": {
+          "default": "xxxxxxxxxx",
+          "title": "clientSecret",
+          "type": "string"
+        },
+        "exporterConfig": {
+          "additionalProperties": false,
+          "properties": {
+            "additionalVariables": {
+              "additionalProperties": false,
+              "properties": {
+                "account_name": {
+                  "default": "",
+                  "title": "account_name",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "account_name"
+              ],
+              "title": "additionalVariables",
+              "type": "object"
+            }
+          },
+          "required": [
+            "additionalVariables"
+          ],
+          "title": "exporterConfig",
+          "type": "object"
+        },
+        "scraperConfig": {
+          "additionalProperties": false,
+          "properties": {
+            "tableName": {
+              "default": "finops",
+              "description": "table name for the FOCUS cost metrics",
+              "title": "tableName",
+              "type": "string"
+            }
+          },
+          "required": [
+            "tableName"
+          ],
+          "title": "scraperConfig",
+          "type": "object"
+        },
+        "tenantId": {
+          "default": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+          "title": "tenantId",
+          "type": "string"
+        }
+      },
+      "required": [
+        "tenantId",
+        "clientId",
+        "clientSecret",
+        "exporterConfig",
+        "scraperConfig"
+      ],
+      "title": "configuration",
+      "type": "object"
+    },
+    "global": {
+      "additionalProperties": false,
+      "properties": {
+        "krateoNamespace": {
+          "default": "krateo-system",
+          "title": "krateoNamespace",
+          "type": "string"
+        }
+      },
+      "required": [
+        "krateoNamespace"
+      ],
+      "title": "global",
+      "type": "object"
+    },
+    "subscriptionId": {
+      "default": "c6b5e096-42d4-4434-9643-a7a342fefb84",
+      "title": "subscriptionId",
+      "type": "string"
+    },
+    "tableName": {
+      "default": "azuretoolkit",
+      "description": "table for the usage metrics of all the virtual machines",
+      "title": "tableName",
+      "type": "string"
+    }
+  },
+  "required": [
+    "tableName",
+    "subscriptionId",
+    "global",
+    "configuration"
+  ],
+  "type": "object"
+}

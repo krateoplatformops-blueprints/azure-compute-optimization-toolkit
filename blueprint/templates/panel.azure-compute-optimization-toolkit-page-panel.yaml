@@ -1,0 +1,33 @@
+kind: Panel
+apiVersion: widgets.templates.krateo.io/v1beta1
+metadata:
+  name:  azure-compute-optimization-toolkit-page-panel
+  namespace: {{ .Release.Namespace }}
+spec: 
+  widgetData:
+    actions: {}
+    title: Azure Compute Optimization Toolkit
+    items:
+      - resourceRefId: filter
+      - resourceRefId: table
+      - resourceRefId: markdown
+  resourcesRefs:
+    items:
+    - id: filter
+      apiVersion: widgets.templates.krateo.io/v1beta1
+      name: azure-compute-optimization-toolkit-filter
+      namespace: {{ .Release.Namespace }}
+      resource: buttons
+      verb: GET
+    - id: table
+      apiVersion: widgets.templates.krateo.io/v1beta1
+      name:  azure-compute-optimization-toolkit-page-panel-table
+      namespace: {{ .Release.Namespace }}
+      resource: tables
+      verb: GET
+    - id: markdown
+      apiVersion: widgets.templates.krateo.io/v1beta1
+      name: azure-compute-optimization-toolkit-page-panel-markdown
+      namespace: {{ .Release.Namespace }}
+      resource: markdowns
+      verb: GET

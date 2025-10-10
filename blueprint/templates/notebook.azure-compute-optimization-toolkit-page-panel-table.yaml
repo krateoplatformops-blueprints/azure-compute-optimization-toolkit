@@ -1,0 +1,90 @@
+apiVersion: finops.krateo.io/v1
+kind: Notebook
+metadata:
+  name: acot
+spec: 
+  type: inline
+  inline: |
+    # The notebook is injected with additional lines of code:
+    # import sys
+    # from crate import client
+    # def eprint(*args, **kwargs):
+    #     print(*args, file=sys.stderr, **kwargs)
+    # host = sys.argv[1]
+    # port = sys.argv[2]
+    # username = sys.argv[3]
+    # password = sys.argv[4]
+    # try:
+    #     connection = client.connect(f"http://{host}:{port}", username=username, password=password)
+    #     cursor = connection.cursor()
+    # except Exception as e:
+    #     eprint('error while connecting to database' + str(e))
+    #     raise
+
+    import json
+
+    def main(tablename, resourceid, unit, metricname, optimizationfrom, optimizationto, optimizationdelta):
+        try:
+            # Build SQL query using the provided table name (safe with identifier quoting)
+            query = f"""
+                SELECT SUM("billedcost")
+                FROM "{tablename}"
+                WHERE "resourceid" LIKE ?
+            """
+            cursor.execute(query, (resourceid.lower() + '%',))
+            result = cursor.fetchone()
+
+            billed_cost = result[0] if result and result[0] is not None else 0.0
+
+            output = {
+                "tablename": tablename,
+                "resourceid": resourceid,
+                "unit": unit,
+                "metricname": metricname,
+                "optimizationfrom": optimizationfrom,
+                "optimizationto": optimizationto,
+                "optimizationdelta": optimizationdelta,
+                "billedCost": billed_cost
+            }
+
+            print(json.dumps(output))
+
+        except Exception as e:
+            print(json.dumps({"error": "Error executing query: " + str(e)}))
+            raise
+
+
+    if __name__ == "__main__":
+        # Parse arguments
+        args = {
+            'tablename': '',
+            'resourceid': '',
+            'unit': '',
+            'metricname': '',
+            'optimizationfrom': '',
+            'optimizationto': '',
+            'optimizationdelta': ''
+        }
+
+        for i in range(5, len(sys.argv)):
+            key_value = sys.argv[i]
+            key_value_split = str.split(key_value, '=')
+            if key_value_split[0] in args.keys():
+                args[key_value_split[0]] = key_value_split[1] if len(key_value_split) > 1 else args[key_value_split[0]]
+
+        missing_param = False
+        for key in args:
+            if args[key] == '':
+                print(json.dumps({"error": f"missing argument for call: {key}"}))
+                missing_param = True
+
+        if not missing_param:
+            main(
+                args['tablename'],
+                args['resourceid'],
+                args['unit'],
+                args['metricname'],
+                args['optimizationfrom'],
+                args['optimizationto'],
+                args['optimizationdelta']
+            )
