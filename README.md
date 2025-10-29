@@ -47,4 +47,4 @@ helm install <name> azure-compute-optimization-toolkit \
   --wait
 ```
 
-The toolkit **must** be installed in the Krateo Namespace. If you install using Helm, then you must set `.Values.global.krateoNamespace` to the Krateo namespace (defaults to _krateo-namespace_).
+The toolkit **must** be installed in the Krateo Namespace.

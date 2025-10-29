@@ -34,9 +34,8 @@ spec:
       ${
         def round2: (. * 100 | round / 100);
 
-        .acot as $rows |
-          .acot as $rows |
-          ($rows | map(.billedCost) | add | round2) as $totalCost |
+        ( .acot // [] ) as $rows |
+          ($rows | map(.billedCost) | add // 0 | round2) as $totalCost |
             (
               $rows
               | map(select(.optimizationdelta != "") | .optimizationdelta | tonumber?)
