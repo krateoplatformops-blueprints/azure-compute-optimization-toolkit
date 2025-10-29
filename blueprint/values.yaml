@@ -9,7 +9,7 @@ tableName: azuretoolkit
 # type: string
 # required: true
 # @schema
-subscriptionId: c6b5e096-42d4-4434-9643-a7a342fefb84
+subscriptionId: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxx
 # @schema
 # type: object
 # required: true

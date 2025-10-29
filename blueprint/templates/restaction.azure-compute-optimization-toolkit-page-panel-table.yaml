@@ -75,7 +75,7 @@ spec:
               "pollingInterval": "1h0m0s",
               "scraperDatabaseConfigRef": {
                   "name": "finops-database-handler",
-                  "namespace": "{{ .Values.global.KrateoNamespace }}"
+                  "namespace": "{{ .Release.Namespace }}"
               },
               "tableName": "{{ .Values.tableName }}"
             }
@@ -84,7 +84,7 @@ spec:
       }
   - name: getCredentials
     verb: GET
-    path: api/v1/namespaces/{{ .Values.global.KrateoNamespace }}/secrets/finops-database-handler-endpoint
+    path: api/v1/namespaces/{{ .Release.Namespace }}/secrets/finops-database-handler-endpoint
     errorKey: getCredentialsError
     headers:
     - 'Accept: application/json'
@@ -99,7 +99,7 @@ spec:
     endpointRef:
       name: finops-moving-window-microservice-endpoint
       namespace: azure-pricing-system
-    path: ${ "/optimize?table_name={{ .Values.tableName }}&resource_name=" + .id + "&dbhandler_url=http://finops-database-handler.{{ .Values.global.KrateoNamespace }}.svc:8088/compute" }
+    path: ${ "/optimize?table_name={{ .Values.tableName }}&resource_name=" + .id + "&dbhandler_url=http://finops-database-handler.{{ .Release.Namespace }}.svc:8088/compute" }
     headers:
     - 'Accept: application/json'
     - "${ \"Authorization: Basic \" + (( .getCredentials.username + \":\" + .getCredentials.password ) | @base64 ) }"
@@ -108,14 +108,14 @@ spec:
     path: /compute/acot
     dependsOn:
       name: optService
-      iterator: .optService
+      iterator: .optService // []
     errorKey: acotError
     headers:
     - 'Accept: application/json'
     - 'Content-Type: application/json'
     endpointRef:
       name: finops-database-handler-endpoint
-      namespace: {{ .Values.global.KrateoNamespace }}
+      namespace: {{ .Release.Namespace }}
     payload: |
       ${ {
             resourceid: .resourceid, 
