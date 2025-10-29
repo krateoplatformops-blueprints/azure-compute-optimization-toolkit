@@ -56,7 +56,7 @@ configuration:
       # type: string
       # required: true
       # @schema
-      account_name: # storage account name
+      account_name: xxxxxxx # storage account name
   scraperConfig:
     # @schema
     # type: string
